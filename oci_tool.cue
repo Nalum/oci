@@ -28,7 +28,7 @@ command: push: {
 		(x.name): {
 			clone: exec.Run & {
 				$dep:   command.push.clean.$done
-				cmd:    "git clone --branch \(x.targetBranch) \(x.source) /tmp/oci-cue/\(x.name)"
+				cmd:    "git clone --quiet --branch \(x.targetBranch) \(x.source) /tmp/oci-cue/\(x.name)"
 				stdout: string
 			}
 			revision: exec.Run & {
