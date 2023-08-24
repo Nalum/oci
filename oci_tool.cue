@@ -28,27 +28,43 @@ command: push: {
 	clean: clean_tmp
 	for x in artifacts {
 		(x.name): {
+			noteClone: cli.Print & {
+				$dep: command.push.clean.$done
+				text: "\(x.name): Cloning \(x.source) to \(_pathPrefix)\(x.name)"
+			}
 			clone: exec.Run & {
-				$dep:   command.push.clean.$done
+				$dep:   noteClone.$done
 				cmd:    "git clone --quiet --branch \(x.targetRef) \(x.source) \(_pathPrefix)\(x.name)"
 				stdout: string
 			}
-			revision: exec.Run & {
+			noteRevision: cli.Print & {
 				$dep: clone.$done
+				text: "\(x.name): Getting Revision"
+			}
+			revision: exec.Run & {
+				$dep: noteRevision.$done
 				dir:  "\(_pathPrefix)\(x.name)"
 				cmd: ["bash", "-c", "echo \"\(x.targetRef)@sha1:$(git rev-parse HEAD)\""]
 				stdout: string
 				Out:    strings.Trim(stdout, "\n")
 			}
+			noteShort: cli.Print & {
+				$dep: revision.$done
+				text: "\(x.name): Getting Short SHA"
+			}
 			short: exec.Run & {
-				$dep:   revision.$done
+				$dep:   noteShort.$done
 				dir:    "\(_pathPrefix)\(x.name)"
 				cmd:    "git rev-parse --short HEAD"
 				stdout: string
 				Out:    strings.Trim(stdout, "\n")
 			}
-			semver: exec.Run & {
+			noteSemver: cli.Print & {
 				$dep: short.$done
+				text: "\(x.name): Getting git tag Semver"
+			}
+			semver: exec.Run & {
+				$dep: noteSemver.$done
 				dir:  "\(_pathPrefix)\(x.name)"
 				cmd: ["bash", "-c", "git describe --tags || echo \"0.1.0\""]
 				stdout: string
@@ -63,27 +79,37 @@ command: push: {
 					flag: ""
 				}
 			}
-			push: exec.Run & {
+			notePush: cli.Print & {
 				$dep: semver.$done
+				text: "\(x.name): Testing Artifact for changes and pushing if needed"
+			}
+			push: exec.Run & {
+				$dep: notePush.$done
 				dir:  "\(_pathPrefix)\(x.name)"
 				cmd: [
 					"bash",
 					"-c",
 					"""
 flux diff artifact oci://\(x.targetRegistry)/\(x.name):\(x.targetRef) --path="\(x.artifactRoot)"\(includeSpecific.flag) || \\
-flux push artifact oci://\(x.targetRegistry)/\(x.name):\(short.Out) --path="\(x.artifactRoot)"\(includeSpecific.flag) --source="\(x.source)" --revision="\(revision.Out)" \(strings.Join([ for y in x.annotations {"--annotations=\"\(y.name)=\(y.value)\""}], " "))
+( \\
+	flux push artifact oci://\(x.targetRegistry)/\(x.name):\(short.Out) --path="\(x.artifactRoot)"\(includeSpecific.flag) --source="\(x.source)" --revision="\(revision.Out)" \(strings.Join([ for y in x.annotations {"--annotations=\"\(y.name)=\(y.value)\""}], " ")) && \\
+	flux tag artifact oci://\(x.targetRegistry)/\(x.name):\(short.Out) --tag="\(x.targetRef)" \\
+)
 """,
 				]
 			}
-			tag: exec.Run & {
+			noteTag: cli.Print & {
 				$dep: push.$done
+				text: "\(x.name): Tagging Artifact"
+			}
+			tag: exec.Run & {
+				$dep: noteTag.$done
 				dir:  "\(_pathPrefix)\(x.name)"
 				cmd: [
 					"bash",
 					"-c",
 					"""
-flux tag artifact oci://\(x.targetRegistry)/\(x.name):\(short.Out) --tag="\(x.targetRef)" && \\
-flux tag artifact oci://\(x.targetRegistry)/\(x.name):\(short.Out) --tag="\(semver.Out)"
+flux tag artifact oci://\(x.targetRegistry)/\(x.name):\(x.targetRef) --tag="\(semver.Out)"
 """,
 				]
 			}
