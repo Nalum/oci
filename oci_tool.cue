@@ -9,6 +9,9 @@ import (
 
 _pathPrefix: "/tmp/oci-cue/"
 
+additionalTag: string @tag(additionalTag)
+versionTag:    string @tag(versionTag)
+
 clean_tmp: exec.Run & {
 	cmd: "rm -rf \(_pathPrefix)"
 }
@@ -59,17 +62,6 @@ command: push: {
 				stdout: string
 				Out:    strings.Trim(stdout, "\n")
 			}
-			noteSemver: cli.Print & {
-				$dep: short.$done
-				text: "\(x.name): Getting git tag Semver"
-			}
-			semver: exec.Run & {
-				$dep: noteSemver.$done
-				dir:  "\(_pathPrefix)\(x.name)"
-				cmd: ["bash", "-c", "git describe --tags || echo \"0.1.0\""]
-				stdout: string
-				Out:    strings.Trim(stdout, "\n")
-			}
 			includeSpecific: {
 				if x.includePaths != [] {
 					flag: " --ignore-paths=\"*\(strings.Join([ for y in x.includePaths {",!\(y)"}], ""))\""
@@ -80,7 +72,7 @@ command: push: {
 				}
 			}
 			notePush: cli.Print & {
-				$dep: semver.$done
+				$dep: short.$done
 				text: "\(x.name): Testing Artifact for changes and pushing if needed"
 			}
 			push: exec.Run & {
@@ -98,20 +90,39 @@ flux diff artifact oci://\(x.targetRegistry)/\(x.name):\(x.targetRef) --path="\(
 """,
 				]
 			}
-			noteTag: cli.Print & {
-				$dep: push.$done
-				text: "\(x.name): Tagging Artifact"
-			}
-			tag: exec.Run & {
-				$dep: noteTag.$done
-				dir:  "\(_pathPrefix)\(x.name)"
-				cmd: [
-					"bash",
-					"-c",
-					"""
-flux tag artifact oci://\(x.targetRegistry)/\(x.name):\(x.targetRef) --tag="\(semver.Out)"
+			if versionTag != "" {
+				noteVersionTag: cli.Print & {
+					$dep: push.$done
+					text: "\(x.name): Tagging Artifact with Version \(versionTag)"
+				}
+				versionTagTask: exec.Run & {
+					$dep: noteVersionTag.$done
+					dir:  "\(_pathPrefix)\(x.name)"
+					cmd: [
+						"bash",
+						"-c",
+						"""
+flux tag artifact oci://\(x.targetRegistry)/\(x.name):\(x.targetRef) --tag="\(versionTag)"
 """,
-				]
+					]
+				}
+			}
+			if additionalTag != "" {
+				noteAdditionalTag: cli.Print & {
+					$dep: push.$done
+					text: "\(x.name): Tagging Artifact with Additional Tag \(additionalTag)"
+				}
+				additionalTagTask: exec.Run & {
+					$dep: noteAdditionalTag.$done
+					dir:  "\(_pathPrefix)\(x.name)"
+					cmd: [
+						"bash",
+						"-c",
+						"""
+flux tag artifact oci://\(x.targetRegistry)/\(x.name):\(x.targetRef) --tag="\(additionalTag)"
+""",
+					]
+				}
 			}
 		}
 	}
