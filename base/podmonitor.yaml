@@ -47,3 +47,25 @@ spec:
           - tf-controller
   podMetricsEndpoints:
     - port: http-prom
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: tf-controller-2
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/part-of: tf-controller
+    app.kubernetes.io/component: monitoring
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - flux-system
+  selector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values:
+          - tf-controller
+  podMetricsEndpoints:
+    - port: http-prom
