@@ -6,7 +6,7 @@ _artifact: {
 	name!:           string
 	source!:         string
 	targetRegistry!: string
-	targetBranch:    *"main" | string
+	targetRef:       *"main" | string
 	artifactRoot:    *"./" | string
 	includePaths: [...string]
 	annotations: [..._annotation]
