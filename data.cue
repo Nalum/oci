@@ -6,7 +6,7 @@ artifacts: [
 		source:         "git@github.com:nalum/oci.git"
 		targetRegistry: "ghcr.io"
 		artifactRoot:   "./base"
-		annotation: [
+		annotations: [
 			{
 				name:  "org.opencontainers.image.source"
 				value: "https://github.com/nalum/oci"
