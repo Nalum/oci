@@ -90,6 +90,13 @@ flux diff artifact oci://\(x.targetRegistry)/\(x.name):\(x.targetRef) --path="\(
 """,
 				]
 			}
+		}
+	}
+}
+
+command: tag: {
+	for x in artifacts {
+		(x.name): {
 			if versionTag != "" {
 				noteVersionTag: cli.Print & {
 					$dep: push.$done
@@ -97,7 +104,6 @@ flux diff artifact oci://\(x.targetRegistry)/\(x.name):\(x.targetRef) --path="\(
 				}
 				versionTagTask: exec.Run & {
 					$dep: noteVersionTag.$done
-					dir:  "\(_pathPrefix)\(x.name)"
 					cmd: [
 						"bash",
 						"-c",
@@ -114,7 +120,6 @@ flux tag artifact oci://\(x.targetRegistry)/\(x.name):\(x.targetRef) --tag="\(ve
 				}
 				additionalTagTask: exec.Run & {
 					$dep: noteAdditionalTag.$done
-					dir:  "\(_pathPrefix)\(x.name)"
 					cmd: [
 						"bash",
 						"-c",
