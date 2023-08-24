@@ -6,6 +6,16 @@ artifacts: [
 		source:         "git@github.com:nalum/oci.git"
 		targetRegistry: "ghcr.io"
 		artifactRoot:   "./base"
+		annotation: [
+			{
+				name:  "org.opencontainers.image.source"
+				value: "https://github.com/nalum/oci"
+			},
+			{
+				name:  "org.opencontainers.image.authors"
+				value: "nalum"
+			},
+		]
 	},
 	{
 		name:           "nalum/oci/pod-info-root"
@@ -15,12 +25,12 @@ artifacts: [
 		artifactRoot:   "./kustomize"
 		annotations: [
 			{
-				name:  "author"
+				name:  "org.opencontainers.image.authors"
 				value: "stefanprodan"
 			},
 			{
-				name:  "packager"
-				value: "nalum"
+				name:  "org.opencontainers.image.source"
+				value: "https://github.com/nalum/oci"
 			},
 		]
 	},
@@ -34,12 +44,12 @@ artifacts: [
 		]
 		annotations: [
 			{
-				name:  "author"
+				name:  "org.opencontainers.image.authors"
 				value: "stefanprodan"
 			},
 			{
-				name:  "packager"
-				value: "nalum"
+				name:  "org.opencontainers.image.source"
+				value: "https://github.com/nalum/oci"
 			},
 		]
 	},
