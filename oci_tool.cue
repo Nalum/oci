@@ -99,7 +99,6 @@ command: tag: {
 		(x.name): {
 			if versionTag != "" {
 				noteVersionTag: cli.Print & {
-					$dep: push.$done
 					text: "\(x.name): Tagging Artifact with Version \(versionTag)"
 				}
 				versionTagTask: exec.Run & {
@@ -115,7 +114,6 @@ flux tag artifact oci://\(x.targetRegistry)/\(x.name):\(x.targetRef) --tag="\(ve
 			}
 			if additionalTag != "" {
 				noteAdditionalTag: cli.Print & {
-					$dep: push.$done
 					text: "\(x.name): Tagging Artifact with Additional Tag \(additionalTag)"
 				}
 				additionalTagTask: exec.Run & {
