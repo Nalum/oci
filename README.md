@@ -138,7 +138,7 @@ Also provided is `cue ls` which will present the `data.cue` information in a tab
 ```bash
 ❯ cue ls
 OCI Artifact                       Git Repository                            Target Ref   Artifact Root   Include Paths   Annotations
-ghcr.io/nalum/oci/base             git@github.com:nalum/oci.git              main         ./base
+ghcr.io/nalum/oci/base             git@github.com:nalum/oci.git              main         ./base                          org.opencontainers.image.source=https://github.com/nalum/oci,org.opencontainers.image.authors=nalum
 ghcr.io/nalum/oci/pod-info-root    git@github.com:stefanprodan/podinfo.git   master       ./kustomize                     org.opencontainers.image.authors=stefanprodan,org.opencontainers.image.source=https://github.com/nalum/oci
 ghcr.io/nalum/oci/pod-info-paths   git@github.com:stefanprodan/podinfo.git   v5.x         ./              kustomize       org.opencontainers.image.authors=stefanprodan,org.opencontainers.image.source=https://github.com/nalum/oci
 ```
