@@ -11,23 +11,33 @@ values: {
 
 	artifacts: [
 		{
-			name:     "nalum/oci/pod-info-root"
+			name:     "pod-info-root"
+			artifact: "nalum/oci/pod-info-root"
 			registry: "ghcr.io"
-			path:     "./kustomize"
-			ref: tag: "master"
+			source: interval:    "20m0s"
+			kustomize: path:     "./kustomize"
+			kustomize: interval: "5m0s"
 
 			enabledClusters: ["wge.dev.luke"]
 			enabledEnvironments: ["dev"]
 			enabledRegions: ["us-east-1"]
 		},
 		{
-			name:     "nalum/oci/pod-info-paths"
+			name:     "pod-info-paths"
+			artifact: "nalum/oci/pod-info-paths"
 			registry: "ghcr.io"
-			ref: tag: "v5.x"
 
 			enabledClusters: ["wge.dev.luke"]
 			enabledEnvironments: ["dev"]
 			enabledRegions: ["us-east-1"]
+
+			promotion: type: "custom"
+			promotion: versioning: [
+				{
+					tag: "staging"
+					clusters: ["wge.dev.luke"]
+				},
+			]
 		},
 	]
 }

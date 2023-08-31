@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	v1beta2 "github.com/fluxcd/source-controller/api/v1beta2"
+	//scv1beta2 "github.com/fluxcd/source-controller/api/v1beta2"
 )
 
 // Config defines the schema and defaults for the Instance values.
@@ -13,110 +13,93 @@ import (
 	metadata: metav1.#ObjectMeta
 	metadata: name:      string & =~"^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$" & strings.MaxRunes(63)
 	metadata: namespace: string & strings.MaxRunes(63)
-	metadata: labels?: {[ string]: string}
-	metadata: annotations?: {[ string]: string}
 
 	clusterName:     string
 	environmentName: string
 	regionName:      string
 
-	artifacts: [...#Artifact]
+	artifacts: [...#Artifact & {_clusterName: clusterName, _environmentName: environmentName, _regionName: regionName}]
 }
 
 // Instance takes the config values and outputs the Kubernetes objects.
 #Instance: {
 	config: #Config
 
-	objects: {
-		for a in config.artifacts {
-			if a._enabled {
-				"\(a.name)-or": #OCIRepository & {_config: config}
-				"\(a.name)-k":  #Kustomization & {_config: config}
-			}
+	objects: {[string]: _}
+	for a in config.artifacts {
+		if a.enabled {
+			objects: "\(a.name)-or": #OCIRepository & {_config: config & {metadata: name: "\(a.name)-or"}}
+			objects: "\(a.name)-k":  #Kustomization & {_config: config & {metadata: name: "\(a.name)-k"}}
 		}
 	}
 }
 
 #Artifact: {
-	name!:     string
-	registry!: string
-	path:      *"./" | string
-	ref:       v1beta2.#OCIRepositoryRef
+	name:     string
+	artifact: string
+	registry: string
+	source: interval:    *"5m0s" | string
+	kustomize: interval: *"1m0s" | string
+	kustomize: path:     *"./" | string
 
 	enabledClusters: [...string]
-	disabledClusters: [...string]
 	enabledEnvironments: [...string]
-	disabledEnvironments: [...string]
 	enabledRegions: [...string]
-	disabledRegions: [...string]
+
+	promotion: type: *"standard" | "custom"
+	promotion: versioning: [...#PromotionCustom]
 
 	// Logic checks for enabling resources
-	_enabled:            *false | bool
-	_clusterEnabled:     *false | bool
-	_environmentEnabled: *false | bool
-	_regionEnabled:      *false | bool
+	enabled:             *false | bool
+	_clusterEnabled:     *false | bool // Default to false if enabledClusters is set
+	_environmentEnabled: *false | bool // Default to false if enabledEnvironments is set
+	_regionEnabled:      *false | bool // Default to false if enabledRegions is set
+	_clusterName:        string
+	_environmentName:    string
+	_regionName:         string
 
 	if enabledClusters != [] {
 		for c in enabledClusters {
-			if c == clusterName {
+			if c == _clusterName {
 				_clusterEnabled: true
 			}
 		}
 	}
 
-	if disabledClusters != [] {
-		for c in disabledClusters {
-			if c == clusterName {
-				_clusterEnabled: false
-			}
-		}
-	}
-
-	if disabledClusters == [] && enabledClusters == [] {
+	if enabledClusters == [] {
 		_clusterEnabled: true
 	}
 
 	if enabledEnvironments != [] {
 		for e in enabledEnvironments {
-			if e == environmentName {
+			if e == _environmentName {
 				_environmentEnabled: true
 			}
 		}
 	}
 
-	if disabledEnvironments != [] {
-		for e in disabledEnvironments {
-			if e == environmentName {
-				_environmentEnabled: false
-			}
-		}
-	}
-
-	if disabledEnvironments == [] && enabledEnvironments == [] {
+	if enabledEnvironments == [] {
 		_environmentEnabled: true
 	}
 
 	if enabledRegions != [] {
 		for r in enabledRegions {
-			if r == regionName {
+			if r == _regionName {
 				_regionEnabled: true
 			}
 		}
 	}
 
-	if disabledRegions != [] {
-		for r in disabledRegions {
-			if r == regionName {
-				_regionEnabled: false
-			}
-		}
-	}
-
-	if disabledRegions == [] && enabledRegions == [] {
+	if enabledRegions == [] {
 		_regionEnabled: true
 	}
 
 	if _clusterEnabled && _environmentEnabled && _regionEnabled {
-		_enabled: true
+		enabled: true
 	}
+}
+
+#PromotionCustom: {
+	clusters: [...string]
+	tag: string
 }

@@ -28,8 +28,11 @@ timoni: {
 		// The instance name and namespace tag values
 		// are injected at runtime by Timoni.
 		config: metadata: {
-			name:      string @tag(name)
 			namespace: string @tag(namespace)
+			labels: {
+				"app.kubernetes.io/name":     string @tag(name)
+				"app.kubernetes.io/instance": string @tag(name)
+			}
 		}
 	}
 
