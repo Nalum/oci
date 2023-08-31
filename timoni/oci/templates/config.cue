@@ -13,6 +13,8 @@ import (
 	metadata: metav1.#ObjectMeta
 	metadata: name:      string & =~"^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$" & strings.MaxRunes(63)
 	metadata: namespace: string & strings.MaxRunes(63)
+	metadata: labels: {[ string]: string}
+	metadata: annotations: {[ string]: string}
 
 	clusterName:     string
 	environmentName: string
@@ -25,13 +27,15 @@ import (
 #Instance: {
 	config: #Config
 
-	objects: {[string]: _}
-	for a in config.artifacts {
-		if a.enabled {
-			objects: "\(a.name)-or": #OCIRepository & {_config: config & {metadata: name: "\(a.name)-or"}}
-			objects: "\(a.name)-k":  #Kustomization & {_config: config & {metadata: name: "\(a.name)-k"}}
-		}
-	}
+	objects: {[ string]: #OCIRepository | #Kustomization}
+	objects: "pod-info-root-or": #OCIRepository & {_config: config} & {_artifact: config.artifacts[0]}
+	objects: "pod-info-root-k":  #Kustomization & {_config: config} & {_artifact: config.artifacts[0]}
+	//for a in config.artifacts {
+	//if a.enabled {
+	//objects: "\(a.name)-or": #OCIRepository & {_config: config & {metadata: name: "\(a.name)-or"}} & {_artifact: a}
+	//objects: "\(a.name)-k":  #Kustomization & {_config: config & {metadata: name: "\(a.name)-k"}} & {_artifact:  a}
+	//}
+	//}
 }
 
 #Artifact: {
