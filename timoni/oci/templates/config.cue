@@ -28,14 +28,12 @@ import (
 	config: #Config
 
 	objects: {[ string]: #OCIRepository | #Kustomization}
-	objects: "pod-info-root-or": #OCIRepository & {_config: config} & {_artifact: config.artifacts[0]}
-	objects: "pod-info-root-k":  #Kustomization & {_config: config} & {_artifact: config.artifacts[0]}
-	//for a in config.artifacts {
-	//if a.enabled {
-	//objects: "\(a.name)-or": #OCIRepository & {_config: config & {metadata: name: "\(a.name)-or"}} & {_artifact: a}
-	//objects: "\(a.name)-k":  #Kustomization & {_config: config & {metadata: name: "\(a.name)-k"}} & {_artifact:  a}
-	//}
-	//}
+	for a in config.artifacts {
+		if a._enabled {
+			objects: "\(a.name)-or": #OCIRepository & {_config: config} & {_artifact: a}
+			objects: "\(a.name)-k":  #Kustomization & {_config: config} & {_artifact: a}
+		}
+	}
 }
 
 #Artifact: {
@@ -54,7 +52,7 @@ import (
 	promotion: versioning: [...#PromotionCustom]
 
 	// Logic checks for enabling resources
-	enabled:             *false | bool
+	_enabled:            *false | bool
 	_clusterEnabled:     *false | bool // Default to false if enabledClusters is set
 	_environmentEnabled: *false | bool // Default to false if enabledEnvironments is set
 	_regionEnabled:      *false | bool // Default to false if enabledRegions is set
@@ -99,7 +97,7 @@ import (
 	}
 
 	if _clusterEnabled && _environmentEnabled && _regionEnabled {
-		enabled: true
+		_enabled: true
 	}
 }
 
