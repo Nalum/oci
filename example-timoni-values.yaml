@@ -1,0 +1,28 @@
+values:
+  clusterName: wge.dev.luke
+  environmentName: dev
+  regionName: us-east-1
+  artifacts:
+  - name: pod-info-root
+    artifact: nalum/oci/pod-info-root
+    registry: ghcr.io
+    source:
+      interval: 20m0s
+    kustomize:
+      path: ./kustomize
+      interval: 5m0s
+    enabledClusters:
+    - wge.dev.luke
+  - name: pod-info-paths
+    artifact: nalum/oci/pod-info-paths
+    registry: ghcr.io
+    enabledEnvironments:
+    - dev2
+    enabledRegions:
+    - us-east-1
+    promotion:
+      type: "custom"
+      versioning:
+      - tag: staging
+        clusters:
+        - wge.dev.luke
