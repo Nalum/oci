@@ -8,25 +8,28 @@ To define an artifact you need to add the details to `data.cue` with the followi
 
 ```cue
 artifacts: [
-    {
-        name:           "nalum/oci/base"
-        source:         "git@github.com:nalum/oci.git"
-        targetRegistry: "ghcr.io"
-        targetRef:      "main"
-        artifactRoot:   "./"
-        includePaths:   ["base"]
-        annotations:    [
-            {
-                name: "author"
-                value: "nalum"
-            }
-        ]
-    }
+  {
+    name:           "nalum/oci/base"
+    source:         "git@github.com:nalum/oci.git"
+    targetRegistry: "ghcr.io"
+    artifactRoot:   "./base"
+    annotations: [
+      {
+        name:  "org.opencontainers.image.source"
+        value: "https://github.com/nalum/oci"
+      },
+      {
+        name:  "org.opencontainers.image.authors"
+        value: "nalum"
+      },
+    ]
+  },
 ]
 ```
 
 The above defines the OCI Artifact `ghcr.io/nalum/oci/base`, the tool will clone the source repo and run the appropriate
-flux oci commands to create and tag the OCI Artifact.
+flux oci commands to create and tag the OCI Artifact. The Artifact will be tagged with the commit short SHA and the
+targetRef used to clone the git repo.
 
 e.g.
 
@@ -61,7 +64,7 @@ nalum/oci/pod-info-paths: Testing Artifact for changes and pushing if needed
 ✔ artifact tagged as ghcr.io/nalum/oci/pod-info-paths:v5.x
 ```
 
-If run again before any new changes are introduce we will not create any new artifacts though tags will be reapplied:
+If run again before any new changes are introduce we will not create any new artifacts:
 
 ```bash
 ❯ cue cmd push
