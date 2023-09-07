@@ -84,7 +84,7 @@ command: push: {
 					"""
 flux diff artifact oci://\(x.targetRegistry)/\(x.name):\(x.targetRef) --path="\(x.artifactRoot)"\(includeSpecific.flag) || \\
 ( \\
-	flux push artifact oci://\(x.targetRegistry)/\(x.name):\(short.Out) --path="\(x.artifactRoot)"\(includeSpecific.flag) --source="\(x.source)" --revision="\(revision.Out)" \(strings.Join([ for y in x.annotations {"--annotations=\"\(y.name)=\(y.value)\""}], " ")) && \\
+	flux push artifact oci://\(x.targetRegistry)/\(x.name):\(short.Out) --path="\(x.artifactRoot)"\(includeSpecific.flag) --source="\(x.source)" --revision="\(revision.Out)" --annotations="path-flag=\(x.artifactRoot)" --annotations="ignore-paths-flag=\(strings.Join(x.includePaths, ","))" \(strings.Join([ for y in x.annotations {"--annotations=\"\(y.name)=\(y.value)\""}], " ")) && \\
 	flux tag artifact oci://\(x.targetRegistry)/\(x.name):\(short.Out) --tag="\(x.targetRef)" \\
 )
 """,
