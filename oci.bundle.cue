@@ -5,7 +5,7 @@ bundle: {
 	_environmentName: string @timoni(runtime:string:ENVIRONMENT_NAME)
 	_regionName:      string @timoni(runtime:string:REGION_NAME)
 
-	apiVersion: "v1alpa1"
+	apiVersion: "v1alpha1"
 	name:       "oci"
 	instances: {
 		podinfo: {
