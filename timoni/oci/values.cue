@@ -5,9 +5,9 @@ package main
 
 // Defaults
 values: {
-	clusterName:     "wge.dev.luke"
-	environmentName: "dev"
-	regionName:      "us-east-1"
+	clusterName:     ""
+	environmentName: ""
+	regionName:      ""
 
 	artifacts: [
 		{
