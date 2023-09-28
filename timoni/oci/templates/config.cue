@@ -40,16 +40,19 @@ import (
 	name:     string
 	artifact: string
 	registry: string
-	source: interval:    *"5m0s" | string
+
+	source: interval: *"5m0s" | string
+
 	kustomize: interval: *"1m0s" | string
 	kustomize: path:     *"./" | string
+	kustomize: prune:    *false | bool
 
 	enabledClusters: [...string]
 	enabledEnvironments: [...string]
 	enabledRegions: [...string]
 
 	promotion: type: *"standard" | "custom"
-	promotion: versioning: [...#PromotionCustom]
+	promotion: versioning: [...#PromotionVersioning]
 
 	// Logic checks for enabling resources
 	_enabled:            *false | bool
@@ -101,7 +104,7 @@ import (
 	}
 }
 
-#PromotionCustom: {
+#PromotionVersioning: {
 	clusters: [...string]
 	tag: string
 }

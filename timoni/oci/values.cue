@@ -14,9 +14,12 @@ values: {
 			name:     "pod-info-root"
 			artifact: "nalum/oci/pod-info-root"
 			registry: "ghcr.io"
-			source: interval:    "20m0s"
+
+			source: interval: "20m0s"
+
 			kustomize: path:     "./kustomize"
 			kustomize: interval: "5m0s"
+			kustomize: prune:    true
 
 			enabledClusters: ["wge.dev.luke"]
 			enabledEnvironments: ["dev"]

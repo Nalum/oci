@@ -15,7 +15,7 @@ import (
 	metadata: annotations: _config.metadata.annotations
 	spec: path:            _artifact.kustomize.path
 	spec: interval:        _artifact.kustomize.interval
-	spec: prune:           false
+	spec: prune:           _artifact.kustomize.prune
 	spec: sourceRef: kind: "OCIRepository"
 	spec: sourceRef: name: "\(_artifact.name)-or"
 }
